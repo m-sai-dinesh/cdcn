@@ -1,0 +1,110 @@
+           S.No.               Command                        Description
+             1                 `ipconfig`                     Displays the
+                                                              system's IP
+                                                              address, subnet
+                                                              mask, and default
+                                                              gateway.
+
+             2                 `ipconfig /all`                Displays complete
+                                                              network
+                                                              configuration,
+                                                              including MAC
+                                                              address and DNS
+                                                              details.
+
+             3                 `ipconfig /release`            Releases the
+                                                              currently assigned
+                                                              IP address.
+
+             4                 `ipconfig /renew`              Requests a new IP
+                                                              address from the
+                                                              DHCP server.
+
+             5                 `ipconfig /flushdns`           Clears the DNS
+                                                              resolver cache.
+
+             6                 `ping google.com`              Checks network
+                                                              connectivity and
+                                                              measures response
+                                                              time.
+
+             7                 `ping 127.0.0.1`               Tests the local
+                                                              TCP/IP network
+                                                              stack using the
+                                                              loopback address.
+
+             8                 `tracert google.com`           Displays the route
+                                                              taken by packets to
+                                                              reach the
+                                                              destination.
+
+             9                 `pathping google.com`          Displays the route
+                                                              and packet-loss
+                                                              information at each
+                                                              hop.
+
+             10                `nslookup google.com`          Looks up DNS
+                                                              information, such
+                                                              as the IP address
+                                                              associated with a
+                                                              domain name.
+
+             11                `hostname`                     Displays the
+                                                              computer's host
+                                                              name.
+
+             12                `getmac`                       Displays the MAC
+                                                              addresses of
+                                                              network adapters.
+
+             13                `arp -a`                       Displays the ARP
+                                                              table, which maps
+                                                              IP addresses to MAC
+                                                              addresses.
+
+             14                `netstat`                      Displays active
+                                                              network connections
+                                                              and listening
+                                                              ports.
+
+             15                `netstat -ano`                 Displays all
+                                                              connections,
+                                                              listening ports,
+                                                              and their
+                                                              associated process
+                                                              IDs (PIDs).
+
+             16                `route print`                  Displays the
+                                                              system's IP routing
+                                                              table.
+
+             17                `nbtstat -n`                   Displays local
+                                                              NetBIOS names.
+
+             18                `netsh wlan show profiles`     Displays saved
+                                                              Wi-Fi network
+                                                              profiles.
+
+             19                `netsh wlan show interfaces`   Displays details
+                                                              about the current
+                                                              Wi-Fi interface and
+                                                              connection.
+
+             20                `getmac /v`                    Displays detailed
+                                                              MAC address
+                                                              information along
+                                                              with adapter names.
+
+             21                `ipconfig /displaydns`         Displays the
+                                                              contents of the DNS
+                                                              resolver cache.
+
+             22                `ping -t google.com`           Continuously sends
+                                                              ping requests until
+                                                              stopped with
+                                                              `Ctrl + C`.
+
+             23                `tracert -d google.com`        Traces the route
+                                                              without resolving
+                                                              IP addresses into
+                                                              hostnames.
