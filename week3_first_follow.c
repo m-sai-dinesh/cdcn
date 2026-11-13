@@ -1,143 +1,104 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#define MAX 20
-char productions[MAX][MAX];
-char first[MAX][MAX], follow[MAX][MAX];
-int n;
-void add(char *set, char ch)
+#include <iostream>
+#include <vector>
+#include <map>
+#include <set>
+#include <string>
+using namespace std;
+vector<string> prod;
+map<char, set<char>> First, Follow;
+set<char> firstOf(const string &s)
 {
-    int i;
-    for (i = 0; set[i] != '\0'; i++)
+    set<char> res;
+    for (char c : s)
     {
-        if (set[i] == ch)
-            return;
-    }
-    int len = strlen(set);
-    set[len] = ch;
-    set[len + 1] = '\0';
-}
-void findFirst(char *result, char symbol)
-{
-    int i, j;
-    char temp[MAX];
-    if (!isupper((unsigned char)symbol))
-    {
-        add(result, symbol);
-        return;
-    }
-   for (i = 0; i < n; i++)
-    {
-        if (productions[i][0] == symbol)
+        if (!isupper(c))
         {
-            if (productions[i][2] == '#')
-            {
-                add(result, '#');
-            }
-            else
-            {
-                for (j = 2; productions[i][j] != '\0'; j++)
-                {
-                    temp[0] = '\0';
-                    findFirst(temp, productions[i][j]);
-                    int k;
-                    for (k = 0; temp[k] != '\0'; k++)
-                    {
-                        if (temp[k] != '#')
-                            add(result, temp[k]);
-                    }
-                    if (strchr(temp, '#') == NULL)
-                        break;
-                    if (productions[i][j + 1] == '\0')
-                        add(result, '#');
-                }
-            }
+            res.insert(c);
+            return res;
         }
+        for (char x : First[c])
+            if (x != '#')
+                res.insert(x);
+        if (!First[c].count('#'))
+            return res;
     }
+    res.insert('#');
+    return res;
 }
-void findFollow(char *result, char symbol)
+template <class F>
+void repeatUntilStable(F step)
 {
-    int i, j, k;
-    char temp[MAX];
-    if (symbol == productions[0][0])
-        add(result, '$');
-    for (i = 0; i < n; i++)
+    bool changed = true;
+    while (changed)
+        changed = step();
+}
+void print(const string &name, map<char, set<char>> &m, const vector<char> &nts)
+{
+    cout << "\n" << name << " sets:\n";
+    for (char nt : nts)
     {
-        for (j = 2; productions[i][j] != '\0'; j++)
-        {
-            if (productions[i][j] == symbol)
-            {
-                if (productions[i][j + 1] != '\0')
-                {
-                    temp[0] = '\0';
-                    findFirst(temp, productions[i][j + 1]);
-                    for (k = 0; temp[k] != '\0'; k++)
-                    {
-                        if (temp[k] != '#')
-                            add(result, temp[k]);
-                    }
-                    if (strchr(temp, '#') != NULL)
-                    {
-                        temp[0] = '\0';
-                        findFollow(temp, productions[i][0]);
-                        for (k = 0; temp[k] != '\0'; k++)
-                            add(result, temp[k]);
-                    }
-                }
-                else if (productions[i][0] != symbol)
-                {
-                    temp[0] = '\0';
-                    findFollow(temp, productions[i][0]);
-                    for (k = 0; temp[k] != '\0'; k++)
-                        add(result, temp[k]);
-                }
-            }
-        }
+        cout << name << "(" << nt << ") = { ";
+        for (char c : m[nt])
+            cout << c << " ";
+        cout << "}\n";
     }
 }
 int main()
 {
-    int i;
-    char nonTerminals[MAX];
-    printf("Enter number of productions: ");
-    scanf("%d", &n);
-    printf("Enter productions (use # for epsilon):\n");
-    for (i = 0; i < n; i++)
-        scanf("%s", productions[i]);
-    int ntCount = 0;
-    for (i = 0; i < n; i++)
+    int n;
+    cout << "Enter number of productions: ";
+    cin >> n;
+    prod.resize(n);
+    cout << "Enter productions (use # for epsilon):\n";
+    vector<char> nts;
+    for (auto &p : prod)
     {
-        char nt = productions[i][0];
-        if (strchr(nonTerminals, nt) == NULL)
+        cin >> p;
+        if (!First.count(p[0]))
         {
-            nonTerminals[ntCount++] = nt;
-            nonTerminals[ntCount] = '\0';
+            First[p[0]];
+            nts.push_back(p[0]);
         }
     }
-    printf("\nFIRST sets:\n");
-    for (i = 0; i < ntCount; i++)
+    repeatUntilStable([&]
     {
-        char result[MAX] = "";
-        findFirst(result, nonTerminals[i]);
-        printf("FIRST(%c) = { ", nonTerminals[i]);
-        for (int j = 0; result[j] != '\0'; j++)
-            printf("%c ", result[j]);
-        printf("}\n");
-    }
-    printf("\nFOLLOW sets:\n");
-    for (i = 0; i < ntCount; i++)
+        bool changed = false;
+        for (auto &p : prod)
+        {
+            size_t before = First[p[0]].size();
+            set<char> f = firstOf(p.substr(2));
+            First[p[0]].insert(f.begin(), f.end());
+            changed |= First[p[0]].size() != before;
+        }
+        return changed;
+    });
+    Follow[prod[0][0]].insert('$');
+    repeatUntilStable([&]
     {
-        char result[MAX] = "";
-        findFollow(result, nonTerminals[i]);
-        printf("FOLLOW(%c) = { ", nonTerminals[i]);
-        for (int j = 0; result[j] != '\0'; j++)
-            printf("%c ", result[j]);
-        printf("}\n");
-    }
+        bool changed = false;
+        for (auto &p : prod)
+            for (size_t i = 2; i < p.size(); i++)
+            {
+                if (!isupper(p[i]))
+                    continue;
+                char B = p[i];
+                size_t before = Follow[B].size();
+                set<char> f = firstOf(p.substr(i + 1));
+                for (char x : f)
+                    if (x != '#')
+                        Follow[B].insert(x);
+                if (f.count('#'))
+                    Follow[B].insert(Follow[p[0]].begin(), Follow[p[0]].end());
+                changed |= Follow[B].size() != before;
+            }
+        return changed;
+    });
+    print("FIRST", First, nts);
+    print("FOLLOW", Follow, nts);
     return 0;
 }
 
-Output 
+Output
 Enter number of productions: 8
 Enter productions (use # for epsilon):
 E=TR
@@ -151,14 +112,14 @@ F=i
 
 FIRST sets:
 FIRST(E) = { ( i }
-FIRST(R) = { + # }
+FIRST(R) = { # + }
 FIRST(T) = { ( i }
-FIRST(S) = { * # }
+FIRST(S) = { # * }
 FIRST(F) = { ( i }
 
 FOLLOW sets:
 FOLLOW(E) = { $ ) }
 FOLLOW(R) = { $ ) }
-FOLLOW(T) = { + $ ) }
-FOLLOW(S) = { + $ ) }
-FOLLOW(F) = { * + $ ) }
+FOLLOW(T) = { $ ) + }
+FOLLOW(S) = { $ ) + }
+FOLLOW(F) = { $ ) * + }
