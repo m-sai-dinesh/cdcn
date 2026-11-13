@@ -1,10 +1,7 @@
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
 int tempCount = 1;
-
 int precedence(char op)
 {
     if (op == '*' || op == '/')
@@ -13,13 +10,11 @@ int precedence(char op)
         return 1;
     return 0;
 }
-
 void generateTAC(char expr[])
 {
     char operands[50][20], operators[50];
     int topOperand = -1, topOperator = -1;
     int i = 0;
-
     while (expr[i] != '\0')
     {
         if (expr[i] == ' ')
@@ -83,7 +78,6 @@ void generateTAC(char expr[])
         strcpy(operands[++topOperand], temp);
     }
 }
-
 int main()
 {
     char expr[100];
