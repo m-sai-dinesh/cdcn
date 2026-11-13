@@ -1,0 +1,206 @@
+#include <stdio.h>
+#include <string.h>
+
+char stack[100];
+int top = -1;
+
+void push(char c)
+{
+    stack[++top] = c;
+}
+
+char pop()
+{
+    return stack[top--];
+}
+
+void displayStack()
+{
+    int i;
+
+    for (i = 0; i <= top; i++)
+        printf("%c", stack[i]);
+}
+
+int main()
+{
+    char input[100];
+    int ip = 0;
+    char X, a;
+
+    /*
+        Grammar:
+        E -> T R
+        R -> + T R | #
+        T -> F Y
+        Y -> * F Y | #
+        F -> ( E ) | i
+
+        # represents epsilon.
+    */
+
+    printf("Enter the input string (use i for identifier): ");
+    scanf("%s", input);
+
+    strcat(input, "$");
+
+    push('$');
+    push('E');
+
+    printf("\nStack\t\tInput\t\tAction\n");
+    printf("---------------------------------------------\n");
+
+    while (top >= 0)
+    {
+        X = stack[top];
+        a = input[ip];
+
+        displayStack();
+        printf("\t\t%s\t\t", input + ip);
+
+        if (X == '$' && a == '$')
+        {
+            printf("Accept\n");
+            return 0;
+        }
+
+        if (X == a)
+        {
+            pop();
+            ip++;
+
+            printf("Match %c\n", a);
+        }
+
+        else if (X == 'E')
+        {
+            pop();
+
+            if (a == 'i' || a == '(')
+            {
+                push('R');
+                push('T');
+
+                printf("E -> TR\n");
+            }
+            else
+            {
+                printf("Error\n");
+                return 0;
+            }
+        }
+
+        else if (X == 'R')
+        {
+            pop();
+
+            if (a == '+')
+            {
+                push('R');
+                push('T');
+                push('+');
+
+                printf("R -> +TR\n");
+            }
+            else if (a == ')' || a == '$')
+            {
+                printf("R -> epsilon\n");
+            }
+            else
+            {
+                printf("Error\n");
+                return 0;
+            }
+        }
+
+        else if (X == 'T')
+        {
+            pop();
+
+            if (a == 'i' || a == '(')
+            {
+                push('Y');
+                push('F');
+
+                printf("T -> FY\n");
+            }
+            else
+            {
+                printf("Error\n");
+                return 0;
+            }
+        }
+
+        else if (X == 'Y')
+        {
+            pop();
+
+            if (a == '*')
+            {
+                push('Y');
+                push('F');
+                push('*');
+
+                printf("Y -> *FY\n");
+            }
+            else if (a == '+' || a == ')' || a == '$')
+            {
+                printf("Y -> epsilon\n");
+            }
+            else
+            {
+                printf("Error\n");
+                return 0;
+            }
+        }
+
+        else if (X == 'F')
+        {
+            pop();
+
+            if (a == 'i')
+            {
+                push('i');
+
+                printf("F -> i\n");
+            }
+            else if (a == '(')
+            {
+                push(')');
+                push('E');
+                push('(');
+
+                printf("F -> (E)\n");
+            }
+            else
+            {
+                printf("Error\n");
+                return 0;
+            }
+        }
+
+        else
+        {
+            printf("Error\n");
+            return 0;
+        }
+    }
+
+    printf("Rejected\n");
+
+    return 0;
+}
+
+output 
+
+Enter the input string (use i for identifier): i
+
+Stack		Input		Action
+---------------------------------------------
+$E		i$		E -> TR
+$RT		i$		T -> FY
+$RYF		i$		F -> i
+$RYi		i$		Match i
+$RY		$		Y -> epsilon
+$R		$		R -> epsilon
+$		$		Accept
