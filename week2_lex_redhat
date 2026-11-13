@@ -42,3 +42,15 @@ int yywrap()
 {
     return 1;
 }
+
+
+redhat commands 
+
+nano file.extension
+ctrl+x
+y
+ctrl+c
+
+flex file.ext
+gcc lex.yy.c -o lexer
+./lexer
